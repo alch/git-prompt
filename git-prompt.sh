@@ -8,7 +8,7 @@
         fi
 
         # clear vars from previous invocation
-        unset dir_color rc_color user_id_color root_id_color init_vcs_color clean_vcs_color
+        unset at at_color dir_prefix dir_color rc_color user_id_color root_id_color init_vcs_color clean_vcs_color
         unset modified_vcs_color added_vcs_color addmoded_vcs_color untracked_vcs_color op_vcs_color detached_vcs_color hex_vcs_color
         unset rawhex_len
 
@@ -53,8 +53,8 @@
         unset cols
 
 	#### prompt character, for root/non-root
-	prompt_char=${prompt_char:-'>'}
-	root_prompt_char=${root_prompt_char:-'>'}
+	prompt_char=${prompt_char:-''}
+	root_prompt_char=${root_prompt_char:-''}
 
         #### vcs colors
                  init_vcs_color=${init_vcs_color:-WHITE}        # initial
@@ -321,7 +321,7 @@ set_shell_label() {
         if [[ -z $host_color && -x /usr/bin/cksum ]] ;  then
                 cksum_color_no=`echo $uphost | cksum  | awk '{print $1%6}'`
                 color_index=(green yellow blue magenta cyan white)              # FIXME:  bw,  color-256
-                host_color=${color_index[cksum_color_no]}
+				host_color=${color_index[cksum_color_no]}
         fi
 
         host_color=${!host_color}
@@ -333,8 +333,9 @@ set_shell_label() {
         #  [[user@]host[-tty]]
 
         if [[ -n $id  || -n $host ]] ;   then
-                [[ -n $id  &&  -n $host ]]  &&  at='@'  || at=''
-                color_who_where="${id}${host:+$host_color$at$host}${tty:+ $tty}"
+				[[ -n $id  &&  -n $host ]]  &&  at=${at:='@'}  || at=''
+				at_color="${!at_color}${at}"
+                color_who_where="${id}${at_color}${host:+$host_color$host}${tty:+ $tty}"
                 plain_who_where="${id}$at$host"
 
                 # add trailing " "
@@ -713,7 +714,7 @@ prompt_command_function() {
         # else eval cwd_cmd,  cwd should have path after exection
         eval "${cwd_cmd/\\/cwd=\\\\}"
 
-        PS1="$colors_reset$rc$head_local$color_who_where$dir_color$cwd$tail_local$dir_color$prompt_char $colors_reset"
+        PS1="$colors_reset$rc$head_local$color_who_where${!dir_prefix_color}$dir_prefix$dir_color$cwd$tail_local$dir_color$prompt_char $colors_reset"
 
         unset head_local tail_local pwd
  }
